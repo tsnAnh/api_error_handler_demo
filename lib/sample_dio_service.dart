@@ -11,8 +11,8 @@ class SampleDioService {
   Stream<List<String>> getItems() async* {
     yield await get<List<String>>(
       'https://62c833610f32635590d3e18c.mockapi.io/test',
-      (data) {
-        final l = data as Iterable;
+      onResponse: (Response<dynamic> data) {
+        final l = data.data as Iterable;
         return l
             .map((e) => StringData.fromJson(e))
             .map((e) => e.string)
@@ -21,11 +21,12 @@ class SampleDioService {
     );
   }
 
-  Future<T> get<T>(String url, T Function(dynamic data) onResponse) async {
+  Future<T> get<T>(String url,
+      {required T Function(Response<dynamic> data) onResponse}) async {
     try {
       final response = await dio.get(url);
 
-      return onResponse(response.data);
+      return onResponse(response);
     } on DioError catch (e) {
       log(e.toString());
       rethrow;
